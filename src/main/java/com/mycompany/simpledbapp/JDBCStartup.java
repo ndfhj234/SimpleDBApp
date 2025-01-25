@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 /**
  *
@@ -15,7 +16,7 @@ import java.sql.Statement;
  */
 public class JDBCStartup {
 
-    private class User {
+    public class User {
         String username;
         String password;
         String accessRole;
@@ -88,7 +89,7 @@ public class JDBCStartup {
         Statement stmt = conn.createStatement();
         // Fix SQL injection vulnerability by using prepared statement
         String sqlStr = "SELECT * FROM users WHERE username = ? AND password = ?";
-        var pstmt = conn.prepareStatement(sqlStr);
+        PreparedStatement pstmt = conn.prepareStatement(sqlStr);
         pstmt.setString(1, username);
         pstmt.setString(2, password);
         ResultSet rs = pstmt.executeQuery();
