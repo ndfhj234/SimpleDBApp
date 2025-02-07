@@ -5,8 +5,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JDBCStartup {
 
@@ -71,24 +69,6 @@ public class JDBCStartup {
             return new User(rs.getString("username"), rs.getString("password"),
                 rs.getString("user_role"));
         else return null;
-    }
-
-    public List<User> getAllUsers() {
-        List<User> users = new ArrayList<>();
-        try {
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM users");
-            while (rs.next()) {
-                users.add(new User(
-                    rs.getString("username"),
-                    rs.getString("password"),
-                    rs.getString("user_role")
-                ));
-            }
-        } catch (SQLException e) {
-            System.err.println("Error getting users: " + e.getMessage());
-        }
-        return users;
     }
 
     public static void main(String[] args) {

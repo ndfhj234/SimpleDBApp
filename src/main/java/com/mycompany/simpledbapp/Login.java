@@ -52,7 +52,7 @@ public class Login {
                 } else {
                     loginAttempts++;
                     if (loginAttempts >= 3) {
-                        JOptionPane.showMessageDialog(frame, "Too many failed attempts. Application will close.");
+                        JOptionPane.showMessageDialog(frame, "Failed attempts exceeded 3. Application will now close.");
                         System.exit(0);
                     } else {
                         JOptionPane.showMessageDialog(frame, "Invalid username or password.");

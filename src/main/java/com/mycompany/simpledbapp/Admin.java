@@ -6,10 +6,7 @@ import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- *
- * @author ddd60
- */
+
 public class Admin {
     private JFrame frame;
     private JDBCStartup.User user;
