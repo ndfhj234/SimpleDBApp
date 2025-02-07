@@ -1,6 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 package com.mycompany.simpledbapp;
 
 import java.sql.Connection;
@@ -8,23 +5,20 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- *
- * @author fonze
- */
 public class JDBCStartup {
 
     public class User {
         String username;
         String password;
-        String accessRole;
+        String user_role;
 
-        public User(String username, String password, String accessRole) {
+        public User(String username, String password, String user_role) {
             this.username = username;
             this.password = password;
-            this.accessRole = accessRole;
+            this.user_role = user_role;
         }
 
         public String getUsername() {
@@ -43,37 +37,22 @@ public class JDBCStartup {
             this.password = password;
         }
 
-        public String getAccessRole() {
-            return accessRole;
+        public String getUserRole() {
+            return user_role;
         }
 
-        public void setAccessRole(String accessRole) {
-            this.accessRole = accessRole;
+        public void setUserRole(String user_role) {
+            this.user_role = user_role;
         }
     }
 
     private Connection conn;
 
-    public JDBCStartup(String database) {
+     public JDBCStartup(String database) {
         String connStr = "jdbc:sqlite:" + database;
         try {
-            // Register JDBC driver
-            Class.forName("org.sqlite.JDBC");
-            
-            // Create connection
             conn = DriverManager.getConnection(connStr);
-            if (conn != null) {
-                System.out.println("Successfully connected to the database!");
-                // Get SQLite version to verify connection
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT sqlite_version();");
-                if (rs.next()) {
-                    System.out.println("SQLite version: " + rs.getString(1));
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            System.err.println("SQLite JDBC driver not found.");
-            System.err.println(e.toString());
+            System.out.println("Opened database successfully");
         } catch (SQLException e) {
             System.err.println("Failed to create connection");
             System.err.println(e.toString());
@@ -87,40 +66,37 @@ public class JDBCStartup {
 
     public User getUser(String username, String password) throws SQLException {
         Statement stmt = conn.createStatement();
-        // Fix SQL injection vulnerability by using prepared statement
-        String sqlStr = "SELECT * FROM users WHERE username = ? AND password = ?";
-        PreparedStatement pstmt = conn.prepareStatement(sqlStr);
-        pstmt.setString(1, username);
-        pstmt.setString(2, password);
-        ResultSet rs = pstmt.executeQuery();
-        if(rs.next()) {
+        ResultSet rs = stmt.executeQuery("SELECT * FROM Users where username = '" + username + "' and password = '" + password + "'");
+        if(rs.next())
             return new User(rs.getString("username"), rs.getString("password"),
                 rs.getString("user_role"));
+        else return null;
+    }
+
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+            while (rs.next()) {
+                users.add(new User(
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("user_role")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting users: " + e.getMessage());
         }
-        return null;
+        return users;
     }
 
     public static void main(String[] args) {
-        // Create database in the current directory
-        JDBCStartup jdbc = new JDBCStartup("database.db");
         try {
-            // Create a test table and insert some data
-            Statement stmt = jdbc.conn.createStatement();
-            stmt.execute("CREATE TABLE IF NOT EXISTS Users (" +
-                        "username TEXT PRIMARY KEY," +
-                        "password TEXT NOT NULL," +
-                        "user_role TEXT)");
-            
-            System.out.println("Test table created successfully!");
-            
-            // Try to query the table
-            ResultSet rs = jdbc.getAll();
-            while(rs.next()) {
-                System.out.println("User: " + rs.getString("username") + 
-                                 ", Role: " + rs.getString("user_role"));
-            }
+            JDBCStartup db = new JDBCStartup("AccountsDB.db");
+            db.getAll();
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+            System.err.println(e.toString());
         }
     }
 }
